@@ -1,3 +1,4 @@
+// Credit to Boris (https://github.com/fierval) for the original code to interop with GraphViz
 module GraphVisualiser.DrawGraph
 
 open System
@@ -5,7 +6,7 @@ open System.Diagnostics
 open System.IO
 
 //let fileDirectory = Directory.GetCurrentDirectory()
-let fileDirectory = @"D:\Documents\NTU\Year2\Sem2\CY2001Research\F#Implementation\GraphVisualiser"
+let fileDirectory = @"D:\Documents\NTU\Year2\Sem2\CY2001Research\F#Implementation\GraphVisualiser\img"
 
 let createGraph (graph : string) (processName : string) (graphVizPath : string option) (filename: string option)=
     let workingDir =
@@ -36,10 +37,10 @@ let createGraph (graph : string) (processName : string) (graphVizPath : string o
 
                 proc.WaitForExit()
                 if proc.ExitCode = 0 then
-                    printf "Image %s generated" graphFile
-                else failwith "could not create image file"
+                    printf "Image %s generated\n" graphFile
+                else failwith "could not create image file\n"
             with
-                | e -> printf "Exception occurred. %s" e.Message
+                | e -> printf "Exception occurred. %s\n" e.Message
         finally
             if File.Exists graphFile then File.Delete graphFile
     | _ -> failwith "Unknown graphing process"

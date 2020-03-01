@@ -1,6 +1,7 @@
 module GraphVisualiser.State
 
 type State = bool List
+type FSRFunction = (State -> bool)
 
 let FSR func (st: State) =
     match st with
@@ -35,6 +36,20 @@ let StateFromInt (num: int) (length: int) =
         |i -> fromInt (length-1) (curr / 2) ((curr % 2 = 1)::state)
     fromInt length num []
     
-let CSR state =
-    let CSRFunc (st:State) = st |> List.fold (fun x y -> x <> y) true
-    FSR CSRFunc state
+let CompareLexicographic (a: State) (b: State) =
+    compare (StateToInt a) (StateToInt b)
+        
+let GetCompanion (a: State) =
+    let rec MakeCompanion (a: State) =
+        match a with
+        |x::y::rem -> x::(MakeCompanion (y::rem))
+        |x::[] -> [not x]
+        |[] -> failwith "Empty State!"
+    MakeCompanion a
+    
+let GetConjugate (a: State) =
+    match a with
+    |x::rem -> (not x)::rem
+    |[] -> failwith "Empty State!"
+        
+    

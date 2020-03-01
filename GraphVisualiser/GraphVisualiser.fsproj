@@ -7,9 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Debug.fs" />
         <Compile Include="State.fs" />
         <Compile Include="Cycle.fs" />
         <Compile Include="CycleSet.fs" />
+        <Compile Include="OrderedCycles.fs" />
+        <Compile Include="StateRegisterFunctions.fs" />
         <Compile Include="DrawGraph.fs" />
         <Compile Include="FormatGraph.fs" />
         <Compile Include="Program.fs" />
