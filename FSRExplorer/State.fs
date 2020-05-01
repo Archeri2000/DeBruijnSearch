@@ -1,27 +1,16 @@
-module GraphVisualiser.State
+module State
 
-type State = bool List
-type FSRFunction = (State -> bool)
+open Core
 
-let FSR func (st: State) =
-    match st with
-    |_::rem ->
-        let rec result ls =
-            match ls with
-            |[ed] -> ed::[(func st)]
-            |a::b -> a::result(b)
-            |_ -> [func st]
-        //Return result
-        result rem
-    |_ -> failwith "Empty List"
-
-let MakeState (st:int List) =
-    st |> List.map (fun x -> x <> 0)
-    
+/// Maps a State to a binary string
 let SPrintState (state: State) =
     state |> List.fold (fun x y -> sprintf "%s%d" x (if y then 1 else 0)) ""
+    
+/// Prints a State to Console
 let PrintState (state: State) =
     printf "%s\n" (SPrintState state)
+
+/// Converts a State to its integer representation (Base 2 with rightmost number being 2^0)
 let StateToInt (st: State) =
     let rec toInt (state:State) curr =
         match state with
@@ -29,16 +18,15 @@ let StateToInt (st: State) =
         |[] -> curr
     toInt st 0
     
-let StateFromInt (num: int) (length: int) =
+/// Converts an integer into a State (Base 2 with leftmost number being 2^0)
+let StateFromInt (length: int) (num: int) =
     let rec fromInt length curr (state:State) =
         match length with
         |0 -> state
         |i -> fromInt (length-1) (curr / 2) ((curr % 2 = 1)::state)
     fromInt length num []
-    
-let CompareLexicographic (a: State) (b: State) =
-    compare (StateToInt a) (StateToInt b)
         
+/// Gets the companion of the current state (All bits are equal except the rightmost bit is inverted)
 let GetCompanion (a: State) =
     let rec MakeCompanion (a: State) =
         match a with
@@ -47,9 +35,8 @@ let GetCompanion (a: State) =
         |[] -> failwith "Empty State!"
     MakeCompanion a
     
+/// Gets the companion of the current state (All bits are equal except the leftmost bit is inverted)
 let GetConjugate (a: State) =
     match a with
     |x::rem -> (not x)::rem
     |[] -> failwith "Empty State!"
-        
-    

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GraphVisualiser", "GraphVisualiser\GraphVisualiser.fsproj", "{EED19DAA-AFBD-433D-B3A6-B7B9B3E288EB}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSRExplorer", "FSRExplorer\FSRExplorer.fsproj", "{EED19DAA-AFBD-433D-B3A6-B7B9B3E288EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

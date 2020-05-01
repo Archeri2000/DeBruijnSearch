@@ -1,5 +1,5 @@
 // Credit to Boris (https://github.com/fierval) for the original code to interop with GraphViz
-module GraphVisualiser.DrawGraph
+module GraphVisualisation.DrawGraph
 
 open System
 open System.Diagnostics
@@ -8,6 +8,7 @@ open System.IO
 //let fileDirectory = Directory.GetCurrentDirectory()
 let fileDirectory = @"D:\Documents\NTU\Year2\Sem2\CY2001Research\F#Implementation\GraphVisualiser\img"
 
+/// Create a graph from a string representation
 let createGraph (graph : string) (processName : string) (graphVizPath : string option) (filename: string option)=
     let workingDir =
         match graphVizPath with
@@ -27,7 +28,7 @@ let createGraph (graph : string) (processName : string) (graphVizPath : string o
         pi.CreateNoWindow <- true
         pi.ErrorDialog <- false;
         pi.UseShellExecute <- false;
-        pi.Arguments <- String.Format("-Tpng -O -Goverlap=prism {0}", graphFile)
+        pi.Arguments <- String.Format("-Teps -O -Goverlap=prism {0}", graphFile)
         pi.WorkingDirectory <- workingDir
         try
             try
