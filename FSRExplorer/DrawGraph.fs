@@ -6,7 +6,7 @@ open System.Diagnostics
 open System.IO
 
 //let fileDirectory = Directory.GetCurrentDirectory()
-let fileDirectory = @"D:\Documents\NTU\Year2\Sem2\CY2001Research\F#Implementation\GraphVisualiser\img"
+let fileDirectory = @"D:\Documents\NTU\Year2\Sem2\CY2001Research\F#Implementation\FSRExplorer\img"
 
 /// Create a graph from a string representation
 let createGraph (graph : string) (processName : string) (graphVizPath : string option) (filename: string option)=
@@ -28,7 +28,7 @@ let createGraph (graph : string) (processName : string) (graphVizPath : string o
         pi.CreateNoWindow <- true
         pi.ErrorDialog <- false;
         pi.UseShellExecute <- false;
-        pi.Arguments <- String.Format("-Teps -O -Goverlap=prism {0}", graphFile)
+        pi.Arguments <- String.Format("-Tpng -O -Goverlap=prism {0}", graphFile)
         pi.WorkingDirectory <- workingDir
         try
             try

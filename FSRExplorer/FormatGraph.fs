@@ -15,6 +15,8 @@ type Attribute =
     |FillColour of Colour
     |Bold
     |FontSize of int
+    |FontColour of Colour
+    |Label of string
 type Graph = {graphType: string; label: string; edges: string list; nodes: string list}
 
 type Node = {name: string; data: Attribute list}
@@ -40,6 +42,7 @@ let getColourAttribute colourString=
     |"black" -> Some Black
     |_ -> None
     
+//TODO: Improve upon it
 let MakeEdge (x:State) (y:State) = (sprintf "%s -> %s" (SPrintState x) (SPrintState y))
 
 let MakeDirectedCycle (cyc: Cycle) =
@@ -73,34 +76,50 @@ let GetGraphString (graph:Graph) =
 
 let MakeNode (state: State) =
     {name = (SPrintState state); data = []}
+
+//=============
+//Attributes
+//=============
+
+let CombineAttribute (attrList:Attribute List) (attr:Attribute) =
+    match attr with
+    |FillColour _ -> attr::(attrList |> List.filter (fun x -> match x with |FillColour _ -> false |_ -> true))
+    |Bold -> attr::(attrList |> List.filter (fun x -> match x with |Bold _ -> false |_ -> true))
+    |FontSize _ -> attr::(attrList |> List.filter (fun x -> match x with |FontSize _ -> false |_ -> true))
+    |FontColour _ -> attr::(attrList |> List.filter (fun x -> match x with |FontColour _ -> false |_ -> true))
+    |Label _ -> attr::(attrList |> List.filter (fun x -> match x with |Label _ -> false |_ -> true))
+
+let CombineAttributes (attrList:Attribute List) = List.fold CombineAttribute attrList
+
+let AddAttributeToNode (attr: Attribute) (node: Node) =
+    {node with data = attr|>CombineAttribute node.data}
     
-let ColourNodeWith (colour: Colour) (node: Node) =
-    {node with data = (FillColour colour)::(node.data |> List.filter
-                                                         (fun x -> match x with |FillColour _ -> false |_ -> true))}
-    //sprintf "\"%s\" [style=filled, fillcolor=%s, fontname=\"times bold\"]" (SPrintState state) colour
+let SetNodesFontColour (colour: Colour) (nodes: Node list) =
+    nodes |> List.map (AddAttributeToNode (FontColour colour))
     
 let SetNodesColour (colour: Colour) (nodes: Node list) =
-    nodes |> List.map (ColourNodeWith colour)
-    
-let BoldNode (node: Node) =
-    {node with data = Bold::(node.data |> List.filter
-                                                         (fun x -> match x with |Bold _ -> false |_ -> true))}
+    nodes |> List.map (AddAttributeToNode (FillColour colour))
     
 let SetNodesBold (nodes: Node list) =
-    nodes |> List.map BoldNode
-let NodeFontSize (size:int) (node: Node) =
-    {node with data = (FontSize size)::(node.data |> List.filter
-                                                         (fun x -> match x with |FontSize _ -> false |_ -> true))}
+    nodes |> List.map (AddAttributeToNode Bold)
     
 let SetNodesFontSize (size:int) (nodes:Node list) =
-    nodes |> List.map (NodeFontSize size)
+    nodes |> List.map (AddAttributeToNode (FontSize size))
+    
+let SetNodesLabel (label:string) (nodes:Node list) =
+    nodes |> List.map (AddAttributeToNode (Label label))
     
 let AttributeToString (attr:Attribute) =
     match attr with
-    |FillColour colour -> "style=filled, fillcolor=" + (getColourString colour)
+    |FillColour colour -> sprintf "style=filled, fillcolor=%s" (getColourString colour)
     |Bold -> "fontname=\"times bold\""
-    |FontSize size -> "fontsize=" + (string size)
+    |FontSize size -> sprintf "fontsize=%d" size
+    |FontColour colour -> sprintf "fontcolor=%s" (getColourString colour)
+    |Label label -> sprintf "label=\"%s\"" label
 
+//========
+//Misc
+//========
 let UnpackNode (node: Node) =
     let attrList = node.data |> List.map AttributeToString
     match attrList with
@@ -114,27 +133,21 @@ let ContainsNode (node: Node) (list: Node list) =
     
 let GetNode (str: string) (nodes: Node list) =
     nodes |> List.tryFind (fun x -> x.name = str)
-    
-let CombineAttribute (attrList:Attribute List) (attr:Attribute) =
-    match attr with
-    |FillColour _ -> attr::(attrList |> List.filter (fun x -> match x with |FillColour _ -> false |_ -> true))
-    |Bold -> attr::(attrList |> List.filter (fun x -> match x with |Bold _ -> false |_ -> true))
-    |FontSize _ -> attr::(attrList |> List.filter (fun x -> match x with |FontSize _ -> false |_ -> true))
 
-let CombineAttributes (attrList:Attribute List) = List.fold CombineAttribute attrList
-
-let AddNodeToList (NodeList: Node list) (node: Node) =
-    if NodeList |> ContainsNode node
+let AddNodeToList (nodeList: Node list) (node: Node) =
+    if nodeList |> ContainsNode node
     then
-        let newNode = {node with data=
-                                    let folder =
-                                        match (NodeList |> GetNode node.name |> Option.map (fun x -> CombineAttributes x.data)) with
-                                        |Some x -> x
-                                        |None -> (fun x -> x)
-                                    node.data |> folder
+        let newNode = {
+            node with
+                data =
+                    let folder =
+                        match (nodeList |> GetNode node.name |> Option.map (fun x -> CombineAttributes x.data)) with
+                        |Some x -> x
+                        |None -> id
+                    node.data |> folder
         }
-        newNode::(NodeList |> List.filter (fun x -> x.name <> node.name))
-    else node::NodeList
+        newNode::(nodeList |> List.filter (fun x -> x.name <> node.name))
+    else node::nodeList
 let ConcatNodes (list1: Node list) (list2: Node list) =
     list1 |> List.fold AddNodeToList list2
     

@@ -42,22 +42,23 @@ let CompareMixed (st1:State) (st2:State) =
     |0 -> -(CompareLexicographic st1 st2)
     |wt -> wt
 
+//TODO: Define a type, possibly sumtype to denote the two return values
 let getMixedOrderCandidates (cycle:Cycle) =
     let cyclerep = cycle |> List.sortWith CompareMixed |> Seq.head
     let minWeight = cyclerep |> HammingWeight
     let options = cycle |> List.filter (fun x -> StartsWith1 x && (HammingWeight x) = minWeight)
     (cyclerep, options)
 
-let THasOptions (noOptions:State->'a) (hasOptions:State list -> 'a) (rep: State,opts: State list) =
+let HasOptionsWithContinuation (noOptions:State->'a) (hasOptions:State list -> 'a) (rep: State,opts: State list) =
     if opts.Length > 0
     then hasOptions opts
     else noOptions rep
         
-let IfHasOptions = THasOptions (fun x -> x)
+let IfHasOptions = HasOptionsWithContinuation id
 
 let RepFunc1 (klist: int list) =
     let getIndex (ls:State list) = (klist |> List.reduce (fun x y -> if y <= ls.Length then y else x))
-    getMixedOrderCandidates >> IfHasOptions (fun x -> x |> Seq.item (getIndex x))
+    getMixedOrderCandidates >> IfHasOptions (fun x -> x |> Seq.item ((getIndex x)-1))
     
 let RepFunc2 (k:int) =
     getMixedOrderCandidates >> IfHasOptions (fun options ->
@@ -72,4 +73,4 @@ let RepFunc3 (k:int) =
 let MixedWeightCycleRep = RepFunc3 1
     
 let getCandidateCount =
-    getMixedOrderCandidates >> THasOptions (fun _ -> 1) (fun opts -> opts.Length)
+    getMixedOrderCandidates >> HasOptionsWithContinuation (fun _ -> 1) (fun opts -> opts.Length)

@@ -31,8 +31,8 @@ let ContainsState (state: State) (cycles: Cycle list) =
     cycles |> List.exists (CycleContains state)
     
 /// Sorts all cycles by comparing the cycle representatives with the comparator
-let SortCyclesBy (Compare:StateComparator, getRep:CycleRep) =
-    List.sortWith (fun x y -> Compare (getRep x) (getRep y))
+let SortCyclesBy (compare:StateComparator, getRep:CycleRep) =
+    List.sortWith (fun x y -> compare (getRep x) (getRep y))
 
 /// Order by the necklaces in lexicographical order
 let NecklaceOrder = CompareLexicographic, GetNecklace
